@@ -10,6 +10,12 @@ RUN apt-get update && apt-get install -y \
  && a2enmod rewrite headers \
  && rm -rf /var/lib/apt/lists/*
 
+# Railway/Apache: evitar "More than one MPM loaded"
+# (Railway pot acabar deixant múltiples MPM activats a mods-enabled)
+RUN rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf \
+ && ln -sf /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load \
+ && ln -sf /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
+
 # Copiem la configuració PHP personalitzada
 COPY docker/web/php-dev.ini /usr/local/etc/php/conf.d/php-dev.ini
 
@@ -22,3 +28,4 @@ RUN sed -i "s#DocumentRoot /var/www/html#DocumentRoot ${APACHE_DOCUMENT_ROOT}#g"
  && sed -i "s/AllowOverride None/AllowOverride All/g" /etc/apache2/apache2.conf
 
 WORKDIR /var/www/html
+
