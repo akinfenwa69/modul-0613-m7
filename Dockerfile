@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:8.4-apache
 
 # Instal·lació d'extensions i eines bàsiques
 RUN apt-get update && apt-get install -y \
