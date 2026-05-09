@@ -11,10 +11,11 @@ RUN apt-get update && apt-get install -y \
  && rm -rf /var/lib/apt/lists/*
 
 # Railway/Apache: evitar "More than one MPM loaded"
-# (Railway pot acabar deixant múltiples MPM activats a mods-enabled)
-RUN rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf \
- && ln -sf /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load \
- && ln -sf /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
+# Estrategia robusta: desactivar explícitamente todos los MPM y activar solo prefork.
+RUN a2dismod mpm_event mpm_prefork mpm_worker 2>/dev/null || true \
+ && rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf \
+ && a2enmod mpm_prefork
+
 
 # Copiem la configuració PHP personalitzada
 COPY docker/web/php-dev.ini /usr/local/etc/php/conf.d/php-dev.ini

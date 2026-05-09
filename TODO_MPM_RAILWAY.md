@@ -1,10 +1,14 @@
 # TODO: Fix “More than one MPM loaded” (Railway)
 
 ## Hecho
-- Actualitzat `docker/web/Dockerfile` per eliminar múltiples mòduls MPM a `/etc/apache2/mods-enabled/` i forçar `mpm_prefork`.
+- Editado `docker/web/Dockerfile` para intentar resolver `AH00534` eliminando `mpm_*.load` y `mpm_*.conf` en `/etc/apache2/mods-enabled/` y dejando solo `mpm_prefork`.
 
-## Próxims passos
-1. Fer rebuild i redeploy a Railway (push a GitHub/GitLab o trigger del pipeline).
-2. Revisar logs del container/Apache a Railway i verificar que NO apareix `AH00534: More than one MPM loaded`.
-3. Confirmar que la web ja no retorna `502 Bad Gateway`.
+## Pendiente (ahora)
+- Segue apareciendo el mismo error tras el deploy.
+
+## Próximos pasos
+1. Cambiar la estrategia: en vez de tocar solo `mods-enabled`, deshabilitar explícitamente los MPM activos en Apache usando `a2dismod mpm_*` y luego `a2enmod mpm_prefork` (para evitar que Railway nos deje ambos `.load`/`.conf` o que haya configs en otro sitio).
+2. (Opcional) Forzar desinstalación/limpieza de módulos MPM no deseados si existen en la imagen base.
+3. Rebuild y redeploy.
+4. Validar en logs que solo hay un MPM inicializado.
 
