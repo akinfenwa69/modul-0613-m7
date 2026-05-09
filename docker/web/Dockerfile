@@ -11,9 +11,9 @@ RUN apt-get update && apt-get install -y \
  && rm -rf /var/lib/apt/lists/*
 
 # Railway/Apache: evitar "More than one MPM loaded"
-# Estrategia robusta: desactivar explícitamente todos los MPM y activar solo prefork.
-RUN a2dismod mpm_event mpm_worker 2>/dev/null || true \
- && rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* \
+# Estrategia robusta: eliminar tots els MPM i activar només prefork.
+RUN rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf \
+ && a2dismod mpm_event mpm_worker 2>/dev/null || true \
  && a2enmod mpm_prefork
 
 # Copiem la configuració PHP personalitzada
