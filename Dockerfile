@@ -1,5 +1,8 @@
-ARG PHP_VERSION=8.4
-FROM php:${PHP_VERSION}-apache
+# Dockerfile (root)
+# Este archivo se usa en despliegues que apuntan al Dockerfile por defecto.
+# Redirige a la configuración que está en docker/web/Dockerfile.
+
+FROM php:8.4-apache
 
 # Instal·lació d'extensions i eines bàsiques
 RUN apt-get update && apt-get install -y \
@@ -11,12 +14,11 @@ RUN apt-get update && apt-get install -y \
  && rm -rf /var/lib/apt/lists/*
 
 # Railway/Apache: evitar "More than one MPM loaded"
-# Estrategia robusta: desactivar explícitamente todos los MPM y activar solo prefork.
 RUN a2dismod mpm_event mpm_prefork mpm_worker 2>/dev/null || true \
  && rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf \
  && a2enmod mpm_prefork
 
-# Copiem la configuració PHP personalitzada
+# PHP ini
 COPY docker/web/php-dev.ini /usr/local/etc/php/conf.d/php-dev.ini
 
 # DocumentRoot configurable
