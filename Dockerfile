@@ -1,8 +1,6 @@
-# Dockerfile (root)
-# Este archivo se usa en despliegues que apuntan al Dockerfile por defecto.
-# Redirige a la configuración que está en docker/web/Dockerfile.
+ARG PHP_VERSION=8.4
+FROM php:${PHP_VERSION}-apache
 
-FROM php:8.4-apache
 
 # Instal·lació d'extensions i eines bàsiques
 RUN apt-get update && apt-get install -y \
@@ -30,4 +28,3 @@ RUN sed -i "s#DocumentRoot /var/www/html#DocumentRoot ${APACHE_DOCUMENT_ROOT}#g"
  && sed -i "s/AllowOverride None/AllowOverride All/g" /etc/apache2/apache2.conf
 
 WORKDIR /var/www/html
-
