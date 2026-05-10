@@ -71,6 +71,8 @@ Després de diverses proves, vam poguem fer funcionar la web, però no tot estav
 
 ![deploy_forbidden](images/deploy/forbidden.png)
 
+A partir d'aquest moment no hem trobat cap solució degut a la repetició d'errors i problemes amb la configuració del `Dockerfile`.
+
 > Domini: [https://tarraco-fitness.up.railway.app/](https://tarraco-fitness.up.railway.app/)
 
 ## Execució de migracions
