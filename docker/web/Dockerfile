@@ -1,7 +1,6 @@
 ARG PHP_VERSION=8.4
 FROM php:${PHP_VERSION}-apache
 
-# Instal·lació d'extensions i eines bàsiques
 RUN apt-get update && apt-get install -y \
     git unzip zip curl libzip-dev libpng-dev libjpeg62-turbo-dev libwebp-dev \
     libfreetype6-dev libicu-dev libxml2-dev \
@@ -10,18 +9,8 @@ RUN apt-get update && apt-get install -y \
  && a2enmod rewrite headers \
  && rm -rf /var/lib/apt/lists/*
 
-# Railway/Apache: evitar "More than one MPM loaded"
-# Estrategia nuclear: eliminar TODOS los archivos MPM y crear configuración limpia
-RUN rm -rf /etc/apache2/mods-available/mpm_*.* /etc/apache2/mods-enabled/mpm_*.* && \
-    rm -f /etc/apache2/conf-enabled/*mpm* && \
-    echo "LoadModule mpm_prefork_module modules/mod_mpm_prefork.so" > /etc/apache2/mods-available/mpm_prefork.load && \
-    mkdir -p /etc/apache2/mods-enabled && \
-    ln -sf /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load
-
-# Copiem la configuració PHP personalitzada
 COPY docker/web/php-dev.ini /usr/local/etc/php/conf.d/php-dev.ini
 
-# DocumentRoot configurable
 ARG DOCROOT=/var/www/html
 ENV APACHE_DOCUMENT_ROOT=${DOCROOT}
 
@@ -30,4 +19,3 @@ RUN sed -i "s#DocumentRoot /var/www/html#DocumentRoot ${APACHE_DOCUMENT_ROOT}#g"
  && sed -i "s/AllowOverride None/AllowOverride All/g" /etc/apache2/apache2.conf
 
 WORKDIR /var/www/html
-
