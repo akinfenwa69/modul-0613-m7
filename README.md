@@ -61,12 +61,17 @@ Per veure l'API en un entorn de prova, inicia sessió i dirigeix-te a [/exercici
 
 ## Desplegament
 
-En el nostre cas utilitzarem [Railway]() degut a que les comandes proporcionades no ens han funcionat.
+En el nostre cas utilitzarem [Railway](https://railway.com/) degut a que les comandes proporcionades no ens han funcionat.
 
-Per fer possible aquest desplegament hem fet servir la [guia](https://blog.railway.com/p/gitlab-ci-cd) oficial, on ens indica els passos a seguir:
+Per fer possible aquest desplegament hem desplegat un servei buit on clonem un repositori de prova del GitHub. En el nostre cas, al principi no podiem solucionar els problemes per mostrar-ho al domini, però el servei funciona correctament.
 
-- Crear una variable
-- Afegir les variables locals (API i Railway) a les variables de GitLab
+![deploy_service](images/deploy/service.png)
+
+Després de diverses proves, vam poguem fer funcionar la web, però no tot estava solucionat, ja que mostrava l'error 404 Forbidden.
+
+![deploy_forbidden](images/deploy/forbidden.png)
+
+> Domini: [https://tarraco-fitness.up.railway.app/](https://tarraco-fitness.up.railway.app/)
 
 ## Execució de migracions
 
