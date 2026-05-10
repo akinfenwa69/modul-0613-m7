@@ -1,39 +1,38 @@
 FROM php:8.4-apache
 
-# 1. Instalar dependencias del sistema y extensiones de PHP necesarias
+# 1. Instalar extensiones necesarias para Laravel
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    zip \
-    curl \
-    libzip-dev \
-    libpng-dev \
-    libjpeg62-turbo-dev \
-    libwebp-dev \
-    libfreetype6-dev \
-    libicu-dev \
-    libxml2-dev \
+    git unzip zip curl libzip-dev libpng-dev libjpeg62-turbo-dev \
+    libwebp-dev libfreetype6-dev libicu-dev libxml2-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install pdo_mysql mysqli gd intl zip \
     && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Configurar el MPM (Evita el error "More than one MPM loaded") 
-RUN a2dismod mpm_event mpm_worker || true && a2enmod mpm_prefork
+# 2. LIMPIEZA AGRESIVA DE MPM (El error de los 3 días)
+# Borramos CUALQUIER configuración de MPM que exista y forzamos solo prefork.
+RUN find /etc/apache2/mods-enabled -name "mpm_*" -delete \
+    && a2enmod mpm_prefork
 
-# 3. Eliminar el aviso "Could not reliably determine the FQDN" de los logs
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+# 3. Configurar DocumentRoot para LARAVEL
+# Laravel necesita que la raíz sea la carpeta /public, no la raíz del proyecto.
+RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf \
+    && echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# 4. Preparar el directorio de trabajo y copiar tu código
+# 4. Copiar archivos usando la estructura real de tu repo
+# Asumiendo que el contexto de build de Railway es la raíz del repositorio:
 WORKDIR /var/www/html
-COPY . .
+COPY app/laravel/ . 
 
-# 5. Ajustar permisos para que Apache no tenga problemas de escritura
-RUN chown -R www-data:www-data /var/www/html
+# Copiar tu configuración de PHP personalizada
+COPY docker/web/php-dev.ini $PHP_INI_DIR/conf.d/
 
-# 6. COMANDO CRÍTICO: Mapeo del puerto dinámico de Railway
-# No podemos fijar el puerto 80 porque Railway asigna uno variable (ej. 8080) en cada despliegue.
-# Este comando cambia el puerto en la configuración de Apache justo antes de arrancar.
+# 5. Permisos para Laravel
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# 6. Puerto dinámico (Obligatorio para Railway)
+# Aunque pongas 80 en el panel, Railway puede ignorarlo. Esto lo hace infalible.
 CMD sh -c "sed -i 's/Listen 80/Listen ${PORT:-80}/g' /etc/apache2/ports.conf && \
            sed -i 's/:80/:${PORT:-80}/g' /etc/apache2/sites-available/000-default.conf && \
            apache2-foreground"
