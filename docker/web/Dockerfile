@@ -14,4 +14,7 @@ RUN apt-get update && apt-get install -y \
     && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
 
+# Desactivar mpm_event y mpm_worker para asegurar que solo prefork esté activo
+RUN a2dismod mpm_event mpm_worker || true && a2enmod mpm_prefork
+
 WORKDIR /var/www/html
