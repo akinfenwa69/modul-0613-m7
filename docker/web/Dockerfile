@@ -7,7 +7,6 @@ RUN apt-get update && apt-get install -y \
  && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
  && docker-php-ext-install -j"$(nproc)" pdo_mysql mysqli gd intl zip \
  && a2dismod mpm_event \
- && a2enmod mpm_prefork \
  && a2enmod rewrite headers \
  && rm -rf /var/lib/apt/lists/*
 
