@@ -1,5 +1,6 @@
 FROM php:8.4-apache
 
+# Instalación de dependencias y extensiones (lo que ya tenías)
 RUN apt-get update && apt-get install -y \
     git unzip zip curl \
     libzip-dev \
@@ -14,7 +15,10 @@ RUN apt-get update && apt-get install -y \
     && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
 
-# Desactivar mpm_event y mpm_worker para asegurar que solo prefork esté activo
-RUN a2dismod mpm_event mpm_worker || true && a2enmod mpm_prefork
+# ESTO ES LO QUE TE FALTA: Copiar tu código al contenedor
+COPY . /var/www/html
 
 WORKDIR /var/www/html
+
+# Nota: He quitado el a2dismod de aquí porque es más fiable 
+# hacerlo en el Start Command de Railway como te puse arriba.
